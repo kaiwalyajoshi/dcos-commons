@@ -1,3 +1,6 @@
 [submodule "testing"]
 	path = testing
 	url = git@github.com:kaiwalyajoshi/dcos-commons-testing.git
+[submodule "tools"]
+	path = tools
+	url = git@github.com:kaiwalyajoshi/dcos-commons-tools.git
