@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:kaiwalyajoshi/dcos-commons-testing.git
+	branch = master
+	commit = 3bdd8d7d74c87305d60ed6aef7b1b1baf83e738e
+	parent = 28a5a9629131ee2306dff8fbb2e910ef676a5b82
+	method = merge
+	cmdver = 0.4.0
