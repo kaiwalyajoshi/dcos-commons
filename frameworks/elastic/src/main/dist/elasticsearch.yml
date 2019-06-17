@@ -19,12 +19,12 @@ bootstrap.memory_lock: false
 metrics.statsd.host: {{STATSD_UDP_HOST}}
 metrics.statsd.port: {{STATSD_UDP_PORT}}
 
-{{#PLACEMENT_REFERENCED_ZONE}}
 {{#ZONE}}
 node.attr.zone: {{ZONE}}
+{{#PLACEMENT_REFERENCED_ZONE}}
 cluster.routing.allocation.awareness.attributes: zone
-{{/ZONE}}
 {{/PLACEMENT_REFERENCED_ZONE}}
+{{/ZONE}}
 
 {{#MASTER_ENABLED}}
 gateway.expected_master_nodes: 3
@@ -40,8 +40,8 @@ node.master: false
 node.data: {{DATA_ENABLED}}
 node.ingest: {{INGEST_ENABLED}}
 
-{{#SECURITY_TRANSPORT_ENCRYPTION_ENABLED}}
 # https://www.elastic.co/guide/en/elasticsearch/reference/6.3/security-settings.html
+{{#SECURITY_TRANSPORT_ENCRYPTION_ENABLED}}
 xpack.security.enabled: true
 # https://www.elastic.co/guide/en/elasticsearch/reference/6.3/security-settings.html#ssl-tls-settings
 xpack.ssl.key: {{MESOS_SANDBOX}}/node.key
@@ -54,12 +54,9 @@ xpack.security.transport.ssl.enabled: true
 xpack.security.http.ssl.enabled: true
 xpack.security.http.ssl.client_authentication: none
 {{/SECURITY_TRANSPORT_ENCRYPTION_ENABLED}}
-# Security is enabled without TLS.
 {{^SECURITY_TRANSPORT_ENCRYPTION_ENABLED}}
-{{#XPACK_SECURITY_ENABLED}}
-# https://www.elastic.co/guide/en/elasticsearch/reference/6.3/security-settings.html
-xpack.security.enabled: true
-{{/XPACK_SECURITY_ENABLED}}
+# X-Pack security is enabled without TLS.
+xpack.security.enabled: {{XPACK_SECURITY_ENABLED}}
 {{/SECURITY_TRANSPORT_ENCRYPTION_ENABLED}}
 
 {{#SCRIPT_ALLOWED_CONTEXTS}}
@@ -286,4 +283,4 @@ cluster.routing.allocation.balance.threshold: {{CLUSTER_ROUTING_ALLOCATION_BALAN
 indices.requests.cache.size: {{INDICES_REQUESTS_CACHE_SIZE}}
 {{/INDICES_REQUESTS_CACHE_SIZE}}
 
-{{CUSTOM_YAML_BLOCK}}
+{{{CUSTOM_YAML_BLOCK}}}

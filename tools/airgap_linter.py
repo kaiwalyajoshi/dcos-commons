@@ -26,7 +26,7 @@ def readlines_if_text_file(filename):
 def extract_uris(file_name):
     lines = readlines_if_text_file(file_name)
 
-    matcher = re.compile(r".*https?:\/\/([^\?\s]*)", re.IGNORECASE)
+    matcher = re.compile(r".*http?:\/\/([^\?\s]*)", re.IGNORECASE)
     matches = []
     for line in lines:
         line = line.strip()
@@ -95,6 +95,8 @@ def get_files_to_check_for_uris(framework_directory):
     files = [
         os.path.join(framework_directory, "universe", "config.json"),
         os.path.join(framework_directory, "universe", "marathon.json.mustache"),
+        os.path.join(framework_directory, "universe", "resource.json"),
+        os.path.join(framework_directory, "universe", "package.json")
     ]
 
     # Always check every file in the `dist` directory of the scheduler.
@@ -127,10 +129,10 @@ def validate_images(framework_directory):
         for line in lines:
             line = line.strip()
             if "image:" in line:
-                image_matcher = re.compile("image:\s?(.*)$", re.IGNORECASE)
+                image_matcher = re.compile(r"image:\s?(.*)$", re.IGNORECASE)
                 match = image_matcher.match(line)
                 image_path = match.group(1)
-                env_var_matcher = re.compile("[\"]?\{\{[A-Z0-9_]*\}\}[\"]?")
+                env_var_matcher = re.compile(r'["]?\{\{[A-Z0-9_]*\}\}["]?')
                 if not env_var_matcher.match(image_path):
                     print(
                         """Bad image found in {}. It is a direct reference instead of a templated reference: {}
@@ -178,7 +180,7 @@ def main(argv):
 
     if invalid:
         print(
-            "Airgap check FAILED. This framework will NOT work in an airgap. Fix the detected issues."
+            "Airgap check FAILED. The framework package definition contains references to non-https URL resources and/or there are invalid URL references in the package definition. Please consider replacing these resources to their HTTPS equivalent. In case of DC/OS internal URLs, please move them to service yaml definitions (which will be populated with FQN on the fly). This framework will NOT work in an air-gapped cluster without fixing the detected issues."
         )
         sys.exit(1)
 

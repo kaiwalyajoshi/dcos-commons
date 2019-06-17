@@ -1,10 +1,5 @@
 # See Dockerfile.base for instructions on how to update this base image.
-# TODO: change to mesosphere/dcos-commons-base:latest@sha256:somechecksum once
-# the docker on TeamCity is recent enough. Until it happens, renovatebot will
-# not be updating this dependency.  See
-# https://mesosphere.slack.com/archives/C4E91G0CX/p1541505296001800 for more
-# background.
-FROM mesosphere/dcos-commons-base@sha256:076d1fdf4033ccd25fcedc3402a23cf017285672181d94e2f6fb11ace48c310e
+FROM mesosphere/dcos-commons-base:latest@sha256:2f87f4b3ce9e9fde446608e63827911275c756a133bde96d03fd21a9f3dff129
 
 ENV GO_VERSION=1.10.2
 ENV PATH=$PATH:/usr/local/go/bin
@@ -46,7 +41,11 @@ RUN cd /tmp/repo/ && \
 RUN mkdir /build-tools
 ENV PATH=/build-tools:$PATH
 
-COPY tools/distribution/init /build-tools/
+COPY tools/distribution/copy-files /build-tools/
+# Temporary workaround for DCOS-52239. Remove once all known frameworks have
+# updated their UPDATING.md to point at copy-files rather than init.
+RUN cp /build-tools/copy-files /build-tools/init
+
 COPY tools/ci/test_runner.sh /build-tools/
 COPY tools/ci/launch_cluster.sh /build-tools/
 
@@ -67,3 +66,5 @@ COPY .pre-commit-config.yaml ${DCOS_COMMONS_DIST_ROOT}/
 
 COPY build.gradle ${DCOS_COMMONS_DIST_ROOT}/build.gradle
 RUN grep -oE "version = '.*?'" ${DCOS_COMMONS_DIST_ROOT}/build.gradle | sed 's/version = //' > ${DCOS_COMMONS_DIST_ROOT}/.version
+
+COPY tools/container/venvs /venvs

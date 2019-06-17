@@ -1,3 +1,4 @@
+import logging
 import pytest
 import retrying
 
@@ -8,15 +9,26 @@ import sdk_cmd
 
 from tests import config
 
+log = logging.getLogger(__name__)
 
 pytestmark = pytest.mark.skipif(
     sdk_utils.is_strict_mode() and sdk_utils.dcos_version_less_than("1.11"),
     reason="secure hierarchical roles are only supported on 1.11+",
 )
 
-pre_reserved_options = {"service": {"yaml": "pre-reserved"}}
-
-pre_reserved_options = {"service": {"yaml": "pre-reserved"}}
+pre_reserved_options = {
+    "service": {
+        "yaml": "pre-reserved"
+    },
+    # Use count as 1 as both the pods launch their tasks under `slave-public` role with unique hostname constraint
+    "hello": {
+        "count": 1
+    },
+    "world": {
+        "count": 1
+    }
+}
+PRERESERVED_TASK_COUNT = 2
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -27,7 +39,7 @@ def configure_package(configure_security):
         sdk_install.install(
             config.PACKAGE_NAME,
             config.SERVICE_NAME,
-            config.DEFAULT_TASK_COUNT,
+            PRERESERVED_TASK_COUNT,
             additional_options=pre_reserved_options,
         )
 
@@ -85,6 +97,10 @@ def test_marathon_volume_collision():
                 marathon_app_name, volume_name
             ),
         )
+
+        if rc != 0:
+            log.error(
+                "Could not get slave_public roles. return-code: '%s'\n", rc)
         assert rc == 0
 
         pv_path = pv_path.strip()
@@ -105,7 +121,7 @@ def test_marathon_volume_collision():
         sdk_install.install(
             config.PACKAGE_NAME,
             config.SERVICE_NAME,
-            config.DEFAULT_TASK_COUNT,
+            PRERESERVED_TASK_COUNT,
             additional_options=pre_reserved_options,
         )
 
@@ -131,7 +147,7 @@ def test_marathon_volume_collision():
         sdk_install.install(
             config.PACKAGE_NAME,
             config.SERVICE_NAME,
-            config.DEFAULT_TASK_COUNT,
+            PRERESERVED_TASK_COUNT,
             additional_options=pre_reserved_options,
         )
 

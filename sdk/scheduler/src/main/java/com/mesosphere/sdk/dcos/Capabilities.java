@@ -97,6 +97,11 @@ public class Capabilities {
     return hasOrExceedsVersion(1, 10);
   }
 
+  public boolean supportsPartitionAwareness() {
+    // The PARTITION_AWARE capability is supported by DC/OS 1.10 upwards. (Mesos 1.4)
+    return hasOrExceedsVersion(1, 10);
+  }
+
   public boolean supportsV1APIByDefault() {
     // The Mesos V1 HTTP API with strict mode enabled is supported by DC/OS 1.11 upwards
     return hasOrExceedsVersion(1, 11);
@@ -113,6 +118,12 @@ public class Capabilities {
     // MOUNT volumes with profiles are supportedby DC/OS 1.12 upwards.
     return hasOrExceedsVersion(1, 12);
   }
+
+  public boolean supportsSeccomp() {
+    // Seccomp fields supported 1.13 and above
+    return hasOrExceedsVersion(1, 13);
+  }
+
 
   private boolean hasOrExceedsVersion(int major, int minor) {
     DcosVersion.Elements versionElements = dcosVersion.getElements();

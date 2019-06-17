@@ -67,7 +67,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings({
     "checkstyle:LineLength",
     "checkstyle:LocalVariableName",
-    "checkstyle:VariableDeclarationUsageDistance"
+    "checkstyle:VariableDeclarationUsageDistance",
+    "checkstyle:CyclomaticComplexity"
 })
 public class PodInfoBuilder {
   private static final Logger LOGGER = LoggingUtils.getLogger(PodInfoBuilder.class);
@@ -571,14 +572,30 @@ public class PodInfoBuilder {
 
     if (isTaskContainer) {
       containerInfo.getLinuxInfoBuilder().setSharePidNamespace(podSpec.getSharePidNamespace());
-    }
+      // Isolate the tmp directory of tasks
+      // switch to SANDBOX SELF after dc/os 1.13
 
-    // Isolate the tmp directory of tasks
-    //switch to SANDBOX SELF after dc/os 1.13
-    containerInfo.addVolumes(Protos.Volume.newBuilder()
-        .setContainerPath("/tmp")
-        .setHostPath("tmp")
-        .setMode(Protos.Volume.Mode.RW));
+      containerInfo.addVolumes(Protos.Volume.newBuilder()
+          .setContainerPath("/tmp")
+          .setHostPath("tmp")
+          .setMode(Protos.Volume.Mode.RW));
+
+      LOGGER.info("Setting seccomp info unconfined: {} profile: {}",
+            podSpec.getSeccompUnconfined(),
+            podSpec.getSeccompProfileName());
+
+      if (podSpec.getSeccompUnconfined() != null && podSpec.getSeccompUnconfined()) {
+        containerInfo.getLinuxInfoBuilder().setSeccomp(Protos.SeccompInfo.newBuilder()
+                .setUnconfined(podSpec.getSeccompUnconfined())
+                .build());
+      }
+
+      if (podSpec.getSeccompProfileName().isPresent()) {
+        containerInfo.getLinuxInfoBuilder().setSeccomp(Protos.SeccompInfo.newBuilder()
+            .setProfileName(podSpec.getSeccompProfileName().get())
+            .build());
+      }
+    }
 
     for (Protos.Volume hostVolume : hostVolumes) {
       containerInfo.addVolumes(hostVolume);
@@ -656,7 +673,13 @@ public class PodInfoBuilder {
           .setType(rLimit.getEnum());
 
       // RLimit itself validates that both or neither of these are present.
-      if (soft.isPresent() && hard.isPresent()) {
+      if ((soft.isPresent() && hard.isPresent()) && (soft.get() != RLimitSpec.RLIMIT_INFINITY &&
+          hard.get() != RLimitSpec.RLIMIT_INFINITY))
+      {
+        // If RLIMIT_INFINITY is desired, the RLimitInfo Protobuf exists but both
+        // the hard and soft values are unset.
+        //http://mesos.apache.org/api/latest/java/org/apache/mesos/Protos.RLimitInfo.RLimit.Builder.html#setHard-long-
+
         rLimitsBuilder.setSoft(soft.get()).setHard(hard.get());
       }
       rLimitInfoBuilder.addRlimits(rLimitsBuilder);

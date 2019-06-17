@@ -19,7 +19,7 @@ The four major components are Apache Mesos, Marathon, Universe, and Apache ZooKe
 
 DC/OS is modeled on an operating system with Mesos as its kernel. Mesos provides an abstraction to enable consumption of the resources a datacenter provides.  In a typical case, these resources are CPU, memory, disk space, and ports. Tasks are launched in the datacenter and consume particular subsets of resources. The programs that can receive resource offers and launch tasks that consume are called **frameworks**. The component of a framework that receives offers and launches tasks is called the **scheduler**.
 
-Mesos determines which frameworks should be offered resources at any given time. It sends update events regarding the status of those tasks. These events include *staging, running, failed*,* *etc.  To learn more about Mesos, consult "[Apache Mesos](http://mesos.apache.org/)".
+Mesos determines which frameworks should be offered resources at any given time. It sends update events regarding the status of those tasks. These events include *staging, running, failed*,* *etc.  To learn more about Mesos, consult "[Apache Mesos](https://mesos.apache.org/)".
 
 ## Marathon
 
@@ -96,7 +96,7 @@ pods:
 
             * **cmd**: The command to run to start a task. Here, the task will print "hello world" to stdout and sleep for 1000 seconds. Because its goal state is `RUNNING`, it will be started again upon exit.
 
-            * **cpus**: This entry defines how many CPUs will be allocated to the task’s container.  For discussion of how resources are isolated and allocate [see the Mesos documentation here](http://mesos.apache.org/documentation/latest/containerizer/).
+            * **cpus**: This entry defines how many CPUs will be allocated to the task’s container.  For discussion of how resources are isolated and allocate [see the Mesos documentation here](https://mesos.apache.org/documentation/latest/containerizers/).
 
             * **memory**: This entry defines how much memory will be allocated to the task’s container.
 
@@ -1007,7 +1007,7 @@ server-lb.hello-world.l4lb.thisdcos.directory:80
 
 ## Virtual networks
 
-The SDK allows pods to join virtual networks, with the `dcos` virtual network available by defualt. You can specify that a pod should join the virtual network by adding the following to your service spec YAML:
+The SDK allows pods to join virtual networks, with the `dcos` virtual network available by default. You can specify that a pod should join the virtual network by adding the following to your service spec YAML:
 
 ```yaml
 pods:
@@ -1024,7 +1024,7 @@ pods:
       ...
 ```
 
-You can also pass arguments when invoking CNI plugins, by adding labels in your virtual network definition. These labels are are free-form key-value pairs that are passed in the format of `key0:value0,key1:value1`. Refer to [Mesos CNI Configuration](http://mesos.apache.org/documentation/latest/cni/#mesos-meta-data-to-cni-plugins) for more information about CNI labels. Here is a sample YAML definition with labels:
+You can also pass arguments when invoking CNI plugins, by adding labels in your virtual network definition. These labels are are free-form key-value pairs that are passed in the format of `key0:value0,key1:value1`. Refer to [Mesos CNI Configuration](https://mesos.apache.org/documentation/latest/cni/#mesos-meta-data-to-cni-plugins) for more information about CNI labels. Here is a sample YAML definition with labels:
 
 ```yaml
 pods:
@@ -1051,11 +1051,11 @@ When a pod is on a virtual network such as the `dcos`:
 Specifying that pods join a virtual network has the following indirect effects:
   * The `ports` resource requirements in the service spec will be ignored as resource requirements, as each pod has their own dedicated IP namespace.
     * This was done so that you do not have to remove all of the port resource requirements just to deploy a service on the virtual network.
-  * A caveat of this is that the SDK does not allow the configuation of a pod to change from the virtual network to the host network or vice-versa.
+  * A caveat of this is that the SDK does not allow the configuration of a pod to change from the virtual network to the host network or vice-versa.
 
 ## Label-Based Discovery
 
-Some external tools such as [Taefik](https://docs.traefik.io) require tasks to be configured with custom labels which are accessed by reading Mesos state. Below is an example of specifying labels for a task in your service spec YAML:
+Some external tools such as [Traefik](https://docs.traefik.io) require tasks to be configured with custom labels which are accessed by reading Mesos state. Below is an example of specifying labels for a task in your service spec YAML:
 
 ```
 name: "hello-world"
@@ -1086,7 +1086,7 @@ Schedulers generate a set of default metrics.  Metrics are reported in three mai
 
 Offers are counted as received as soon as they are offered to the scheduler by Mesos. They are counted as processed after they have been compared against the current work the scheduler needs to do, and then either accepted or rejected.
 
-Declined offers fall into two categories: those that are declined for a long time (e.g., 2 weeks) and those that are declined for a short time (e.g., 5 seconds). In general, offers are declined for a short time when the offer queue is full. They are declined for a long time when they fail to match any of the current work requirements.
+Declined offers fall into two categories: those that are declined for a long time (1 hour) and those that are declined for a short time (e.g., 5 seconds). In general, offers are declined for a short time when the offer queue is full. They are declined for a long time when they fail to match any of the current work requirements.
 
 The `offers.process` timer reports statistics about how long it takes the scheduler to process all offers in the offer queue.
 
@@ -1202,7 +1202,7 @@ offers_process_count 244.0
 ```
 
 ## Custom Metrics
-A service author may choose to expose custom metrics by using the metrics registry. The popular [dropwizard metrics library](http://metrics.dropwizard.io) is used.  An instance of a [MetricsRegistry](http://metrics.dropwizard.io/3.1.0/apidocs/com/codahale/metrics/MetricRegistry.html) can be acquired in the following way.
+A service author may choose to expose custom metrics by using the metrics registry. The popular [dropwizard metrics library](http://metrics.dropwizard.io) is used.  An instance of a [MetricsRegistry](https://metrics.dropwizard.io/3.1.0/apidocs/com/codahale/metrics/MetricRegistry.html) can be acquired in the following way.
 
 ```java
 MetricsRegistry registry = Metrics.getRegistry();
@@ -1259,7 +1259,7 @@ SDK-based example service using DC/OS secrets.
 
 The path of a secret defines which service IDs can have access to it. You can think of secret paths as namespaces. _Only_ services that are under the same namespace can read the content of the secret.
 
-For the example given above, the secret with path `secret-svc/Secret_Path1` can only be accessed by a services with ID `/secret-svc` or any service with  ID under `/secret-svc/`. Servicess with IDs `/secret-svc/dev1` and `/secret-svc/instance2/dev2` all have access to this secret, because they are under `/secret-svc/`.
+For the example given above, the secret with path `secret-svc/Secret_Path1` can only be accessed by a services with ID `/secret-svc` or any service with  ID under `/secret-svc/`. Services with IDs `/secret-svc/dev1` and `/secret-svc/instance2/dev2` all have access to this secret, because they are under `/secret-svc/`.
 
 On the other hand, the secret with path `secret-svc/instance1/Secret_Path2` cannot be accessed by a service with ID `/secret-svc` because it is not _under_ this secret's namespace, which is `/secret-svc/instance1`. `secret-svc/instance1/Secret_Path2` can be accessed by a service with ID `/secret-svc/instance1` or any service with ID under `/secret-svc/instance1/`, for example `/secret-svc/instance1/dev3` and `/secret-svc/instance1/someDir/dev4`.
 
@@ -1368,7 +1368,7 @@ pods:
 
 Every item under `transport-encryption` must have a unique `name`. The `type` field defines the serialization format with which the private key and certificate will be delivered into the task sandbox. Currently, there are two supported formats - `TLS` and `KEYSTORE`. Each item will result in a unique private key and the corresponding certificate.
 
-The TLS artifacts within a single task will be unique for a task instance and won't be shared across all instances of the pod task. Different tasks can request TLS artficats with the same name, but each task will get unique private key and certificate, and they won't get shared across different tasks.
+The TLS artifacts within a single task will be unique for a task instance and won't be shared across all instances of the pod task. Different tasks can request TLS artifacts with the same name, but each task will get unique private key and certificate, and they won't get shared across different tasks.
 
 In the above example, the `$MESOS_SANDBOX` directory would contain following files:
 
@@ -1387,7 +1387,7 @@ Here, the file `server.crt` contains an end-entity certificate in the OpenSSL PE
 
 TLS artifacts are provisioned by the **scheduler** based on the service configuration. Generated artifacts are stored as secrets in the `default` secrets store. The scheduler stores each artifact (private key, certificate, CA bundle, keystore, and truststore) as a separate secret under the task's `DCOS_SPACE` path. This approach ensures that tasks launched by the scheduler [will get access](../operations-guide/#authorization-for-secrets) to all necessary secrets. If the secret exists for a single artifact, then it is **not** overwritten and the existing value is used. Currently there is no exposed automated way of regenerating TLS artifacts. The operator can delete secrets from DC/OS secret store which will trigger generating new TLS artifacts.
 
-The scheduler will generate and store TLS artfiacts for both possible formats (`TLS`, `KEYSTORE`). Changing the format will not create a new private key.
+The scheduler will generate and store TLS artifacts for both possible formats (`TLS`, `KEYSTORE`). Changing the format will not create a new private key.
 
 Generated artifacts are stored as secrets with the following naming scheme:
 
@@ -1423,7 +1423,7 @@ The scheduler provisions the *private key* and `X.509` *certificate* and exposes
 
 ### Private key
 
-The private key is generated by using Java [`KeyPairGenerator`](https://docs.oracle.com/javase/7/docs/api/java/security/KeyPairGenerator.html) initialized with `RSA` algorithm. The `RSA` key is generated with `2048` bit size based on [NIST recommnedations](https://www.keylength.com/en/4/).
+The private key is generated by using Java [`KeyPairGenerator`](https://docs.oracle.com/javase/7/docs/api/java/security/KeyPairGenerator.html) initialized with `RSA` algorithm. The `RSA` key is generated with `2048` bit size based on [NIST recommendations](https://www.keylength.com/en/4/).
 
 ### X.509 certificate
 
@@ -1439,7 +1439,7 @@ ST=CA
 C=US
 ```
 
-Additional X.509 `Subject Alternative Names`, based on the pod `discovery` and `vip` confiagurations, are encoded into the certificate. If no `discovery` or port exposed over VIP is configured, the single the certificate comes with a single SAN.
+Additional X.509 `Subject Alternative Names`, based on the pod `discovery` and `vip` configurations, are encoded into the certificate. If no `discovery` or port exposed over VIP is configured, the single the certificate comes with a single SAN.
 
 ```
 DNSName([pod-index-task].[service-name].autoip.dcos.thisdcos.directory)
@@ -1482,7 +1482,7 @@ The [Java Keystore (JKS)](https://en.wikipedia.org/wiki/Keystore) is a repositor
 
 A **.keystore** is a JKS file that contains a private key with an end-entity certificate and a complete certificate chain, including the root CA certificate. The certificate is stored under the alias name **`default`**. The keystore and key are protected by the password **`notsecure`**.
 
-A **.truststore** is a JKS file that contains the DC/OS root CA certificate stored as a trust certificate. The certificte is stored under alias **`dcos-root`**. The keystore is protected by **`notsecure`** password.
+A **.truststore** is a JKS file that contains the DC/OS root CA certificate stored as a trust certificate. The certificate is stored under alias **`dcos-root`**. The keystore is protected by **`notsecure`** password.
 
 The password **`notsecure`** that protects both JKS files (containing an end-entity certificate with private key and root CA certificate) has been selected because most Java tools and libraries require a password. It is not to meant to provide any additional protection. Security of both files is achieved by using DC/OS secrets store with file-based in-memory secrets. No other schedulers or tasks can access TLS artifacts provisioned by a scheduler.
 
@@ -1530,7 +1530,7 @@ Unit tests that follow the pattern described above will be automatically run on 
 
 ## Integration tests
 
-Within the context of the SDK, integration tests validate expected service behavior in a DC/OS cluster. The SDK provides utilities in its [testing/](http://github.com/mesosphere/dcos-commons/tree/master/testing) directory centered around writing these tests. These make it easy to perform service operations such as install, uninstall, configuration update, software upgrade, rollback, and pod restart. As with unit tests, these tests are run against every pull request and failures blocks merges. The reference hello-world framework provides many [example integration tests](https://github.com/mesosphere/dcos-commons/blob/master/frameworks/helloworld/tests/test_sanity.py) which are used to validate SDK behavior.
+Within the context of the SDK, integration tests validate expected service behavior in a DC/OS cluster. The SDK provides utilities in its [testing/](https://github.com/mesosphere/dcos-commons/tree/master/testing) directory centered around writing these tests. These make it easy to perform service operations such as install, uninstall, configuration update, software upgrade, rollback, and pod restart. As with unit tests, these tests are run against every pull request and failures blocks merges. The reference hello-world framework provides many [example integration tests](https://github.com/mesosphere/dcos-commons/blob/master/frameworks/helloworld/tests/test_sanity.py) which are used to validate SDK behavior.
 
 You can run integration tests manually using `py.test`.  The
 integration tests assume you have a running DC/OS cluster, and have
@@ -1675,7 +1675,7 @@ pods:
 For a full list of which rlimits are supported, refer to [the Mesos documentation on rlimits](https://github.com/apache/mesos/blob/master/docs/isolators/posix-rlimits.md).
 
 **Virtual networks**
-The SDK supports having pods join virtual neworks (including the `dcos` overlay network). For an in-depth explanation of how virtual networks work on DC/OS see the [documentation](https://docs.mesosphere.com/latest/networking/virtual-networks/#virtual-network-service-dns). When a pod joins a virtual network it gets its own IP address and has access to its own array of ports. Therefore when a pod specifies that it is joining `dcos` we ignore the `ports` resource requirements, because the pod will not consume the ports on the host machine. The DNS for pods on this virtual network is `<task_name>.<framework_name>.autoip.dcos.thisdcos.directory`. Note that this DNS will also work for pods on the host network. **Because the `ports` resources are not used when a pod is on the virtual network, we do not allow a pod to be moved from a virtual network to the host network or vice-versa**. This is to prevent potential starvation of the task when the host with the reserved resources for the task does not have the available ports required to launch the task.
+The SDK supports having pods join virtual networks (including the `dcos` overlay network). For an in-depth explanation of how virtual networks work on DC/OS see the [documentation](https://docs.mesosphere.com/latest/networking/virtual-networks/#virtual-network-service-dns). When a pod joins a virtual network it gets its own IP address and has access to its own array of ports. Therefore when a pod specifies that it is joining `dcos` we ignore the `ports` resource requirements, because the pod will not consume the ports on the host machine. The DNS for pods on this virtual network is `<task_name>.<framework_name>.autoip.dcos.thisdcos.directory`. Note that this DNS will also work for pods on the host network. **Because the `ports` resources are not used when a pod is on the virtual network, we do not allow a pod to be moved from a virtual network to the host network or vice-versa**. This is to prevent potential starvation of the task when the host with the reserved resources for the task does not have the available ports required to launch the task.
 
 ### Placement Rules
 
@@ -1982,7 +1982,7 @@ When the `bootstrap` helper is run, it would automatically create a populated ve
   <port>1984</port>
   <game>mysvc</game>
   <!-- ... -->
-<config>
+</config>
 ```
 
 To be clear, the config templating provided by the `bootstrap` tool may be applied to _any text format_, not just XML as in this example. This makes it a powerful tool for handling any config files your service may need. Read more about setting this up in the [Bootstrap Tool](#bootstrap) section.
@@ -2199,7 +2199,7 @@ pods:
           size: 5000
 ```
 
-The path is relative to the sandbox path if not preceded by a leading "/". The sandbox path is always available in the environment variable MESOS_SANDBOX.  The different between ROOT and MOUNT volumes is [documented here](http://mesos.apache.org/documentation/latest/multiple-disk/). The PATH type is not currently supported.
+The path is relative to the sandbox path if not preceded by a leading "/". The sandbox path is always available in the environment variable MESOS_SANDBOX.  The different between ROOT and MOUNT volumes is [documented here](https://mesos.apache.org/documentation/latest/multiple-disk/). The PATH type is not currently supported.
 
 Multiple volumes per pod or task can also be defined in a service YAML file.
 

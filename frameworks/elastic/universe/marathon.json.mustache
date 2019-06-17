@@ -4,7 +4,7 @@
   "mem": 1024,
   "instances": 1,
   "user": "{{service.user}}",
-  "cmd": "export LD_LIBRARY_PATH=$MESOS_SANDBOX/libmesos-bundle/lib:$LD_LIBRARY_PATH; export MESOS_NATIVE_JAVA_LIBRARY=$(ls $MESOS_SANDBOX/libmesos-bundle/lib/libmesos-*.so); export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/jre/); export JAVA_HOME=${JAVA_HOME%/}; export PATH=$(ls -d $JAVA_HOME/bin):$PATH && export JAVA_OPTS=\"-Xms256M -Xmx512M -XX:-HeapDumpOnOutOfMemoryError\" && ./bootstrap -resolve=false -template=false && ./elastic-scheduler/bin/elastic ./elastic-scheduler/svc.yml",
+  "cmd": "export LD_LIBRARY_PATH=$MESOS_SANDBOX/libmesos-bundle/lib:$LD_LIBRARY_PATH; export MESOS_NATIVE_JAVA_LIBRARY=$(ls $MESOS_SANDBOX/libmesos-bundle/lib/libmesos-*.so); export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/); export JAVA_HOME=${JAVA_HOME%/}; export PATH=$(ls -d $JAVA_HOME/bin):$PATH && export JAVA_OPTS=\"-Xms256M -Xmx512M -XX:-HeapDumpOnOutOfMemoryError\" && ./bootstrap -resolve=false -template=false && ./elastic-scheduler/bin/elastic ./elastic-scheduler/svc.yml",
   "labels": {
     "DCOS_COMMONS_API_VERSION": "v1",
     "DCOS_COMMONS_UNINSTALL": "true",
@@ -328,7 +328,35 @@
     {{#elasticsearch.indices_requests_cache_size}}
     "TASKCFG_ALL_INDICES_REQUESTS_CACHE_SIZE": "{{elasticsearch.indices_requests_cache_size}}",
     {{/elasticsearch.indices_requests_cache_size}}
-    "CUSTOM_YAML_BLOCK_BASE64": "{{elasticsearch.custom_elasticsearch_yml}}"
+    "CUSTOM_YAML_BLOCK_BASE64": "{{elasticsearch.custom_elasticsearch_yml}}",
+
+    "MASTER_NODE_READINESS_CHECK_INTERVAL": "{{master_nodes.readiness_check.interval}}",
+    "MASTER_NODE_READINESS_CHECK_DELAY": "{{master_nodes.readiness_check.delay}}",
+    "MASTER_NODE_READINESS_CHECK_TIMEOUT": "{{master_nodes.readiness_check.timeout}}",
+
+    "MASTER_NODE_RLIMIT_NOFILE_SOFT": "{{master_nodes.rlimits.rlimit_nofile.soft}}",
+    "MASTER_NODE_RLIMIT_NOFILE_HARD": "{{master_nodes.rlimits.rlimit_nofile.hard}}",
+
+    "DATA_NODE_READINESS_CHECK_INTERVAL": "{{data_nodes.readiness_check.interval}}",
+    "DATA_NODE_READINESS_CHECK_DELAY": "{{data_nodes.readiness_check.delay}}",
+    "DATA_NODE_READINESS_CHECK_TIMEOUT": "{{data_nodes.readiness_check.timeout}}",
+
+    "DATA_NODE_RLIMIT_NOFILE_SOFT": "{{data_nodes.rlimits.rlimit_nofile.soft}}",
+    "DATA_NODE_RLIMIT_NOFILE_HARD": "{{data_nodes.rlimits.rlimit_nofile.hard}}",
+
+    "INGEST_NODE_READINESS_CHECK_INTERVAL": "{{ingest_nodes.readiness_check.interval}}",
+    "INGEST_NODE_READINESS_CHECK_DELAY": "{{ingest_nodes.readiness_check.delay}}",
+    "INGEST_NODE_READINESS_CHECK_TIMEOUT": "{{ingest_nodes.readiness_check.timeout}}",
+
+    "INGEST_NODE_RLIMIT_NOFILE_SOFT": "{{ingest_nodes.rlimits.rlimit_nofile.soft}}",
+    "INGEST_NODE_RLIMIT_NOFILE_HARD": "{{ingest_nodes.rlimits.rlimit_nofile.hard}}",
+
+    "COORDINATOR_NODE_READINESS_CHECK_INTERVAL": "{{coordinator_nodes.readiness_check.interval}}",
+    "COORDINATOR_NODE_READINESS_CHECK_DELAY": "{{coordinator_nodes.readiness_check.delay}}",
+    "COORDINATOR_NODE_READINESS_CHECK_TIMEOUT": "{{coordinator_nodes.readiness_check.timeout}}",
+
+    "COORDINATOR_NODE_RLIMIT_NOFILE_SOFT": "{{coordinator_nodes.rlimits.rlimit_nofile.soft}}",
+    "COORDINATOR_NODE_RLIMIT_NOFILE_HARD": "{{coordinator_nodes.rlimits.rlimit_nofile.hard}}"
   },
   "fetch": [
     { "uri": "{{resource.assets.uris.bootstrap-zip}}", "cache": true },
@@ -357,5 +385,14 @@
       "protocol": "tcp",
       "name": "api"
     }
-  ]
+  ],
+  "check": {
+    "http": {
+      "portIndex": 0,
+      "path": "/v1/health"
+    },
+    "intervalSeconds": {{service.check.intervalSeconds}},
+    "timeoutSeconds": {{service.check.timeoutSeconds}},
+    "delaySeconds": {{service.check.delaySeconds}}
+  }
 }

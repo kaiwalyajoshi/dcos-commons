@@ -53,7 +53,7 @@ This documentation effectively reflects the Java object tree under [RawServiceSp
 
   * `placement`
 
-    Any additional constraints to be applied when deciding where to deploy this pod. This field supports all [Marathon placement operators](http://mesosphere.github.io/marathon/docs/constraints.html). For example, `[["hostname", "UNIQUE"]]` ensures that at most one pod instance is deployed per agent. This value may be exposed to end users via mustache templating to allow customizing placement of the service within their own environment.
+    Any additional constraints to be applied when deciding where to deploy this pod. This field supports all [Marathon placement operators](https://mesosphere.github.io/marathon/docs/constraints.html). For example, `[["hostname", "UNIQUE"]]` ensures that at most one pod instance is deployed per agent. This value may be exposed to end users via mustache templating to allow customizing placement of the service within their own environment.
 
   * `count`
 
@@ -362,6 +362,29 @@ This documentation effectively reflects the Java object tree under [RawServiceSp
 
         This may be used to define an environment variable used to advertise this port within the task. This is most useful when a random dynamic port is being used, as it allows the task to know what port was allocated for it.
 
+      * `ranges`
+
+        When requesting a dynamic port, a list of ranges may be passed to to constrain the value of the dynamic port. The range is inclusive of `begin` and `end` when they are set. If `begin` or `end` is not set the range constraint is implicit and unbounded on that side. Ranges may be defined as follows:
+
+        ```
+          ports:
+          name1:
+            port: 0
+            env-key: key1
+            ranges:
+              - begin: 1
+                end: 21
+              - begin: 2000
+                end: 5050
+          name2:
+            port: 0
+            ranges:
+              - begin:
+                end: 21
+              - begin: 5000
+                end:
+        ```
+
       * `advertise`
 
         This may be manually set to `true` to enable advertising this port in the service's `endpoints` listing. Default is `false`.
@@ -380,7 +403,7 @@ This documentation effectively reflects the Java object tree under [RawServiceSp
 
     * `health-check`
 
-      Health checks are additional validation that your task is healthy, in addition to just the fact that its process is still running. This is an extra convenience for sitations where a service can enter a zombie state from which it can never return. For example, it might query an HTTP endpoint to validate that an HTTP service is still responding.
+      Health checks are additional validation that your task is healthy, in addition to just the fact that its process is still running. This is an extra convenience for situations where a service can enter a zombie state from which it can never return. For example, it might query an HTTP endpoint to validate that an HTTP service is still responding.
 
       * `cmd`
 
@@ -466,7 +489,7 @@ This documentation effectively reflects the Java object tree under [RawServiceSp
 
       * `visibility`
 
-        The default visibility for the discovery information. May be `FRAMEWORK`, `CLUSTER`, or `EXTERNAL`. If unset this defaults to `CLUSTER`. See [Mesos documentation](http://mesos.apache.org/documentation/latest/app-framework-development-guide/) on service discovery for more information on these visibility values.
+        The default visibility for the discovery information. May be `FRAMEWORK`, `CLUSTER`, or `EXTERNAL`. If unset this defaults to `CLUSTER`. See [Mesos documentation](https://mesos.apache.org/documentation/latest/app-framework-development-guide/) on service discovery for more information on these visibility values.
 
     * `labels`
 

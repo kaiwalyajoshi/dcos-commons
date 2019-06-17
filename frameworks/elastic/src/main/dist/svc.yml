@@ -18,8 +18,8 @@ pods:
       - {{STATSD_URI}}
     rlimits:
       RLIMIT_NOFILE:
-        soft: 128000
-        hard: 128000
+        soft: {{MASTER_NODE_RLIMIT_NOFILE_SOFT}}
+        hard: {{MASTER_NODE_RLIMIT_NOFILE_HARD}}
     placement: '{{{MASTER_NODE_PLACEMENT}}}'
     tasks:
       node:
@@ -48,7 +48,7 @@ pods:
         cmd: |
           set -ex
 
-          export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/jre/)
+          export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/)
 
           mkdir scripts
 
@@ -62,15 +62,18 @@ pods:
 
           exec ./elasticsearch-{{ELASTIC_VERSION}}/bin/elasticsearch
         env:
+          NODE_HEAP_MB: {{MASTER_NODE_HEAP_MB}} 
           DATA_NODE_COUNT: {{DATA_NODE_COUNT}}
           MASTER_NODE_TRANSPORT_PORT: {{MASTER_NODE_TRANSPORT_PORT}}
           MASTER_ENABLED: true
           DATA_ENABLED: false
           INGEST_ENABLED: false
-          ES_JAVA_OPTS: "-Xms{{MASTER_NODE_HEAP_MB}}M -Xmx{{MASTER_NODE_HEAP_MB}}M"
           ELASTIC_VERSION: {{ELASTIC_VERSION}}
           ELASTIC_STATSD_VERSION: {{ELASTIC_STATSD_VERSION}}
         configs:
+          jvm.options:
+            template: jvm.options
+            dest: elasticsearch-{{ELASTIC_VERSION}}/config/jvm.options
           elasticsearch.yml:
             template: elasticsearch.yml
             dest: elasticsearch-{{ELASTIC_VERSION}}/config/elasticsearch.yml
@@ -85,9 +88,9 @@ pods:
             dest: scripts/setup-java-policy.sh
         readiness-check:
           cmd: "curl -k -I -s -f -u {{ELASTICSEARCH_HEALTH_USER}}:{{ELASTICSEARCH_HEALTH_USER_PASSWORD}} {{ELASTICSEARCH_HEALTH_PROTOCOL}}://$TASK_NAME.$FRAMEWORK_HOST:$PORT_HTTP"
-          interval: 5
-          delay: 0
-          timeout: 10
+          interval: {{MASTER_NODE_READINESS_CHECK_INTERVAL}}
+          delay: {{MASTER_NODE_READINESS_CHECK_DELAY}}
+          timeout: {{MASTER_NODE_READINESS_CHECK_TIMEOUT}}
         {{#TASKCFG_ALL_SECURITY_TRANSPORT_ENCRYPTION_ENABLED}}
         transport-encryption:
           - name: node
@@ -108,8 +111,8 @@ pods:
       - {{STATSD_URI}}
     rlimits:
       RLIMIT_NOFILE:
-        soft: 128000
-        hard: 128000
+        soft: {{DATA_NODE_RLIMIT_NOFILE_SOFT}}
+        hard: {{DATA_NODE_RLIMIT_NOFILE_HARD}}
     placement: '{{{DATA_NODE_PLACEMENT}}}'
     tasks:
       node:
@@ -138,7 +141,7 @@ pods:
         cmd: |
           set -ex
 
-          export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/jre/)
+          export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/)
 
           mkdir scripts
 
@@ -152,13 +155,16 @@ pods:
 
           exec ./elasticsearch-{{ELASTIC_VERSION}}/bin/elasticsearch
         env:
+          NODE_HEAP_MB: {{DATA_NODE_HEAP_MB}} 
           MASTER_NODE_TRANSPORT_PORT: {{MASTER_NODE_TRANSPORT_PORT}}
           DATA_ENABLED: true
           INGEST_ENABLED: false
-          ES_JAVA_OPTS: "-Xms{{DATA_NODE_HEAP_MB}}M -Xmx{{DATA_NODE_HEAP_MB}}M"
           ELASTIC_VERSION: {{ELASTIC_VERSION}}
           ELASTIC_STATSD_VERSION: {{ELASTIC_STATSD_VERSION}}
         configs:
+          jvm.options:
+            template: jvm.options
+            dest: elasticsearch-{{ELASTIC_VERSION}}/config/jvm.options
           elasticsearch.yml:
             template: elasticsearch.yml
             dest: elasticsearch-{{ELASTIC_VERSION}}/config/elasticsearch.yml
@@ -173,9 +179,9 @@ pods:
             dest: scripts/setup-java-policy.sh
         readiness-check:
           cmd: "curl -k -I -s -f -u {{ELASTICSEARCH_HEALTH_USER}}:{{ELASTICSEARCH_HEALTH_USER_PASSWORD}} {{ELASTICSEARCH_HEALTH_PROTOCOL}}://$TASK_NAME.$FRAMEWORK_HOST:$PORT_HTTP"
-          interval: 5
-          delay: 0
-          timeout: 10
+          interval: {{DATA_NODE_READINESS_CHECK_INTERVAL}}
+          delay: {{DATA_NODE_READINESS_CHECK_DELAY}}
+          timeout: {{DATA_NODE_READINESS_CHECK_TIMEOUT}}
         {{#TASKCFG_ALL_SECURITY_TRANSPORT_ENCRYPTION_ENABLED}}
         transport-encryption:
           - name: node
@@ -196,8 +202,8 @@ pods:
       - {{STATSD_URI}}
     rlimits:
       RLIMIT_NOFILE:
-        soft: 128000
-        hard: 128000
+        soft: {{INGEST_NODE_RLIMIT_NOFILE_SOFT}}
+        hard: {{INGEST_NODE_RLIMIT_NOFILE_HARD}}
     placement: '{{{INGEST_NODE_PLACEMENT}}}'
     tasks:
       node:
@@ -226,7 +232,7 @@ pods:
         cmd: |
           set -ex
 
-          export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/jre/)
+          export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/)
 
           mkdir scripts
 
@@ -240,13 +246,16 @@ pods:
 
           exec ./elasticsearch-{{ELASTIC_VERSION}}/bin/elasticsearch
         env:
+          NODE_HEAP_MB: {{INGEST_NODE_HEAP_MB}} 
           MASTER_NODE_TRANSPORT_PORT: {{MASTER_NODE_TRANSPORT_PORT}}
           DATA_ENABLED: false
           INGEST_ENABLED: true
-          ES_JAVA_OPTS: "-Xms{{INGEST_NODE_HEAP_MB}}M -Xmx{{INGEST_NODE_HEAP_MB}}M"
           ELASTIC_VERSION: {{ELASTIC_VERSION}}
           ELASTIC_STATSD_VERSION: {{ELASTIC_STATSD_VERSION}}
         configs:
+          jvm.options:
+            template: jvm.options
+            dest: elasticsearch-{{ELASTIC_VERSION}}/config/jvm.options
           elasticsearch.yml:
             template: elasticsearch.yml
             dest: elasticsearch-{{ELASTIC_VERSION}}/config/elasticsearch.yml
@@ -261,9 +270,9 @@ pods:
             dest: scripts/setup-java-policy.sh
         readiness-check:
           cmd: "curl -k -I -s -f -u {{ELASTICSEARCH_HEALTH_USER}}:{{ELASTICSEARCH_HEALTH_USER_PASSWORD}} {{ELASTICSEARCH_HEALTH_PROTOCOL}}://$TASK_NAME.$FRAMEWORK_HOST:$PORT_HTTP"
-          interval: 5
-          delay: 0
-          timeout: 10
+          interval: {{INGEST_NODE_READINESS_CHECK_INTERVAL}}
+          delay: {{INGEST_NODE_READINESS_CHECK_DELAY}}
+          timeout: {{INGEST_NODE_READINESS_CHECK_TIMEOUT}}
         {{#TASKCFG_ALL_SECURITY_TRANSPORT_ENCRYPTION_ENABLED}}
         transport-encryption:
           - name: node
@@ -284,8 +293,8 @@ pods:
       - {{STATSD_URI}}
     rlimits:
       RLIMIT_NOFILE:
-        soft: 128000
-        hard: 128000
+        soft: {{COORDINATOR_NODE_RLIMIT_NOFILE_SOFT}}
+        hard: {{COORDINATOR_NODE_RLIMIT_NOFILE_HARD}}
     placement: '{{{COORDINATOR_NODE_PLACEMENT}}}'
     tasks:
       node:
@@ -314,7 +323,7 @@ pods:
         cmd: |
           set -ex
 
-          export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/jre/)
+          export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jdk*/)
 
           mkdir scripts
 
@@ -328,13 +337,16 @@ pods:
 
           exec ./elasticsearch-{{ELASTIC_VERSION}}/bin/elasticsearch
         env:
+          NODE_HEAP_MB: {{COORDINATOR_NODE_HEAP_MB}} 
           MASTER_NODE_TRANSPORT_PORT: {{MASTER_NODE_TRANSPORT_PORT}}
           DATA_ENABLED: false
           INGEST_ENABLED: false
-          ES_JAVA_OPTS: "-Xms{{COORDINATOR_NODE_HEAP_MB}}M -Xmx{{COORDINATOR_NODE_HEAP_MB}}M"
           ELASTIC_VERSION: {{ELASTIC_VERSION}}
           ELASTIC_STATSD_VERSION: {{ELASTIC_STATSD_VERSION}}
         configs:
+          jvm.options:
+            template: jvm.options
+            dest: elasticsearch-{{ELASTIC_VERSION}}/config/jvm.options
           elasticsearch.yml:
             template: elasticsearch.yml
             dest: elasticsearch-{{ELASTIC_VERSION}}/config/elasticsearch.yml
@@ -349,9 +361,9 @@ pods:
             dest: scripts/setup-java-policy.sh
         readiness-check:
           cmd: "curl -k -I -s -f -u {{ELASTICSEARCH_HEALTH_USER}}:{{ELASTICSEARCH_HEALTH_USER_PASSWORD}} {{ELASTICSEARCH_HEALTH_PROTOCOL}}://$TASK_NAME.$FRAMEWORK_HOST:$PORT_HTTP"
-          interval: 5
-          delay: 0
-          timeout: 10
+          interval: {{COORDINATOR_NODE_READINESS_CHECK_INTERVAL}}
+          delay: {{COORDINATOR_NODE_READINESS_CHECK_DELAY}}
+          timeout: {{COORDINATOR_NODE_READINESS_CHECK_TIMEOUT}}
         {{#TASKCFG_ALL_SECURITY_TRANSPORT_ENCRYPTION_ENABLED}}
         transport-encryption:
           - name: node
